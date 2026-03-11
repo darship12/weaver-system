@@ -1,9 +1,4 @@
-# 🧵 Weaver — Production Tracking System
-
-A **production-ready, full-stack** weaver/saree factory management platform.  
-Built with React · Django REST Framework · PostgreSQL · Kafka · Redis · Celery · Grafana · Docker.
-
----
+# 🧵 Weaver — Tracking System
 
 ## 📐 Architecture
 
@@ -26,53 +21,6 @@ Django REST API    Static/Media
    │       └──── Kafka Consumer Service
    └─── Celery      ← Background jobs (salary, reports)
          └─── Celery Beat ← Scheduler
-
-Grafana (Port 3001) ← Connects to PostgreSQL
-```
-
-**Layer-by-Layer:**
-
-| # | Layer | Technology | Purpose |
-|---|-------|-----------|---------|
-| 1 | User | Admin / Supervisor / Owner | Role-based access |
-| 2 | Frontend | React + Tailwind + Axios | SPA, mobile-responsive |
-| 3 | API Gateway | Nginx | Routing, security, load balancing |
-| 4 | Backend | Django + DRF | Business logic, REST API |
-| 5 | Auth | JWT (SimpleJWT) | Login, token refresh, RBAC |
-| 6 | Database | PostgreSQL 15 | All persistent data |
-| 7 | Events | Apache Kafka | Async event streaming |
-| 8 | Consumer | Python Kafka Consumer | Process events, update DB |
-| 9 | Cache | Redis | Fast reads, session store |
-| 10 | Jobs | Celery + Celery Beat | Salary calc, report gen |
-| 11 | Storage | AWS S3 (optional) | PDF/Excel report files |
-| 12 | Dashboard | Grafana | Charts, KPIs, alerts |
-| 13 | Monitoring | Grafana + Logs | Performance, error tracking |
-
----
-
-## 🎯 Features
-
-### Core Modules
-| Module | Features |
-|--------|----------|
-| **Authentication** | Login/Logout, JWT, Role-based (Admin/Supervisor/Owner) |
-| **Employee Management** | Add/Edit/Delete, skill levels, loom assignment |
-| **Attendance** | Daily bulk marking, Present/Absent/Half Day, monthly summaries |
-| **Production Tracking** | Daily saree entry, live wage calculation, defect tracking |
-| **Salary** | Auto piece-rate calculation, weekly breakdown, paid/unpaid status |
-| **Dashboard** | KPI cards, production charts, top performers, period summaries |
-| **Reports** | Defect analysis, performance trends, export-ready |
-| **Grafana** | Real-time PostgreSQL dashboards |
-
-### Saree Pricing Table
-| Loom | Length | Type | Selling Price | Expense | Profit | Employee Wage |
-|------|--------|------|:---:|:---:|:---:|:---:|
-| 2×1 | 6m | Self Saree / Kadiyal | ₹1,300 | ₹900 | ₹400 | **₹250** |
-| 2×1 | 9m | Gothila | ₹1,800 | ₹1,000 | ₹800 | **₹350** |
-| 4×1 | 6m | Self Saree / Kadiyal | ₹1,650 | ₹1,000 | ₹650 | **₹300** |
-| 4×1 | 9m | Self Saree / Kadiyal | ₹2,200 | ₹1,200 | ₹1,000 | **₹400** |
-
----
 
 ## 🚀 Quick Start (Docker — Recommended)
 
