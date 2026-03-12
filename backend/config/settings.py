@@ -149,9 +149,9 @@ SAREE_PRICING = {
     ('2by1','6m','self_saree'): {'selling':1300,'expense':900,'profit':400,'wage':250},
     ('2by1','6m','kadiyal'):    {'selling':1300,'expense':900,'profit':400,'wage':250},
     ('2by1','9m','gothila'):    {'selling':1800,'expense':1000,'profit':800,'wage':350},
-    ('4by1','6m','self_saree'): {'selling':1650,'expense':1000,'profit':650,'wage':0},
-    ('4by1','6m','kadiyal'):    {'selling':1650,'expense':1000,'profit':650,'wage':0},
-    ('4by1','9m','self_saree'): {'selling':2200,'expense':1200,'profit':1000,'wage':0},
-    ('4by1','9m','kadiyal'):    {'selling':2200,'expense':1200,'profit':1000,'wage':0},
+    ('4by1','6m','self_saree'): {'selling':1650,'expense':1000,'profit':650,'wage':300},
+    ('4by1','6m','kadiyal'):    {'selling':1650,'expense':1000,'profit':650,'wage':300},
+    ('4by1','9m','self_saree'): {'selling':2200,'expense':1200,'profit':1000,'wage':400},
+    ('4by1','9m','kadiyal'):    {'selling':2200,'expense':1200,'profit':1000,'wage':400},
 }
 AUTH_USER_MODEL = 'authentication.User'

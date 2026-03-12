@@ -68,7 +68,7 @@ export default function ReportsPage() {
   });
 
   // Aggregate chart data by date
-  const chartData = chart
+  const chartData: any[] = chart
     ? Object.entries(
         (chart as any[]).reduce((acc: any, item: any) => {
           if (!acc[item.date])
@@ -305,20 +305,18 @@ export default function ReportsPage() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-[#1E2D44]">
-                {["Employee", "Total Sarees", "Defects", "Defect Rate"].map(
-                  (h) => (
-                    <th key={h} className="table-header text-left">
-                      {h}
-                    </th>
-                  ),
-                )}
+                {["Employee", "Total Sarees", "Defects"].map((h) => (
+                  <th key={h} className="table-header text-left">
+                    {h}
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody>
               {defLoading ? (
                 [...Array(3)].map((_, i) => (
                   <tr key={i} className="border-b border-[#1E2D44]">
-                    {[...Array(4)].map((_, j) => (
+                    {[...Array(3)].map((_, j) => (
                       <td key={j} className="table-cell">
                         <div className="skeleton h-4 w-16" />
                       </td>
@@ -328,45 +326,31 @@ export default function ReportsPage() {
               ) : !(defects as any[])?.length ? (
                 <tr>
                   <td
-                    colSpan={4}
+                    colSpan={3}
                     className="table-cell text-slate-500 text-center py-6"
                   >
                     No defect data this week
                   </td>
                 </tr>
               ) : (
-                (defects as any[]).map((d: any) => {
-                  const rate = d.total_sarees
-                    ? ((d.total_defects / d.total_sarees) * 100).toFixed(1)
-                    : "0.0";
-                  const isHigh = Number(rate) > 10;
-                  return (
-                    <tr key={d.employee__id} className="table-row">
-                      <td className="table-cell">
-                        <div className="text-sm font-medium text-slate-200">
-                          {d.employee__name}
-                        </div>
-                        <div className="text-xs text-slate-500 font-mono">
-                          {d.employee__employee_id}
-                        </div>
-                      </td>
-                      <td className="table-cell font-mono text-slate-300">
-                        {d.total_sarees}
-                      </td>
-                      <td className="table-cell font-mono text-slate-300">
-                        {d.total_defects || 0}
-                      </td>
-                      <td className="table-cell">
-                        <span
-                          className={`badge ${isHigh ? "badge-red" : "badge-green"}`}
-                        >
-                          {isHigh && <AlertTriangle className="w-3 h-3 mr-1" />}
-                          {rate}%
-                        </span>
-                      </td>
-                    </tr>
-                  );
-                })
+                (defects as any[]).map((d: any) => (
+                  <tr key={d.employee__id} className="table-row">
+                    <td className="table-cell">
+                      <div className="text-sm font-medium text-slate-200">
+                        {d.employee__name}
+                      </div>
+                      <div className="text-xs text-slate-500 font-mono">
+                        {d.employee__employee_id}
+                      </div>
+                    </td>
+                    <td className="table-cell font-mono text-slate-300">
+                      {d.total_sarees}
+                    </td>
+                    <td className="table-cell font-mono text-slate-300">
+                      {d.total_defects || 0}
+                    </td>
+                  </tr>
+                ))
               )}
             </tbody>
           </table>

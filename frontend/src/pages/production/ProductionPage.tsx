@@ -10,10 +10,9 @@ import {
   Loader2,
   AlertTriangle,
   IndianRupee,
-  Edit,
   Trash2,
 } from "lucide-react";
-import { productionAPI, employeeAPI } from "../../services/api";
+import { productionAPI, employeeAPI, salaryAPI } from "../../services/api";
 import type { ProductionEntry } from "../../types";
 import Modal from "../../components/common/Modal";
 import EmptyState from "../../components/common/EmptyState";
@@ -60,7 +59,6 @@ const PRICE_MAP: Record<string, { price: number; profit: number }> = {
 export default function ProductionPage() {
   const [showForm, setShowForm] = useState(false);
   const [search, setSearch] = useState("");
-  const [editing, setEditing] = useState<ProductionEntry | null>(null);
   const qc = useQueryClient();
 
   const { data: pageData, isLoading } = useQuery({
@@ -81,14 +79,18 @@ export default function ProductionPage() {
     : (designsData as any)?.results || [];
 
   const mutation = useMutation({
-    mutationFn: (d: FormData) =>
-      editing ? productionAPI.update(editing.id, d) : productionAPI.create(d),
+    mutationFn: (d: FormData) => productionAPI.create(d),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["production"] });
       qc.invalidateQueries({ queryKey: ["dashboard"] });
-      toast.success(editing ? "Entry updated!" : "Entry saved!");
+      qc.invalidateQueries({ queryKey: ["production-summary"] });
+      qc.invalidateQueries({ queryKey: ["defects"] });
+      qc.invalidateQueries({ queryKey: ["top-performers"] });
+      qc.invalidateQueries({ queryKey: ["daily-chart"] });
+      // Invalidate salary query to refresh salary page (salary is calculated on the backend when a production entry is created)
+      qc.invalidateQueries({ queryKey: ["salary-weekly"] });
+      toast.success("Entry saved!");
       setShowForm(false);
-      setEditing(null);
       reset();
     },
     onError: (e: any) => toast.error(e?.response?.data?.message || "Error"),
@@ -99,6 +101,11 @@ export default function ProductionPage() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["production"] });
       qc.invalidateQueries({ queryKey: ["dashboard"] });
+      qc.invalidateQueries({ queryKey: ["salary-weekly"] });
+      qc.invalidateQueries({ queryKey: ["production-summary"] });
+      qc.invalidateQueries({ queryKey: ["defects"] });
+      qc.invalidateQueries({ queryKey: ["top-performers"] });
+      qc.invalidateQueries({ queryKey: ["daily-chart"] });
       toast.success("Entry removed");
     },
     onError: (e: any) =>
@@ -149,23 +156,6 @@ export default function ProductionPage() {
     }
   };
 
-  const handleEdit = (entry: ProductionEntry) => {
-    setEditing(entry);
-    setShowForm(true);
-    reset({
-      employee: entry.employee,
-      date: entry.date,
-      loom_number: entry.loom_number,
-      loom_type: entry.loom_type,
-      saree_length: entry.saree_length,
-      saree_type: entry.saree_type,
-      design_type: entry.design_type || undefined,
-      quantity: entry.quantity,
-      defects: entry.defects,
-      notes: entry.notes || undefined,
-    });
-  };
-
   const entries: ProductionEntry[] = pageData?.results || [];
 
   return (
@@ -179,7 +169,6 @@ export default function ProductionPage() {
         </div>
         <button
           onClick={() => {
-            setEditing(null);
             setShowForm(true);
             reset();
           }}
@@ -226,13 +215,6 @@ export default function ProductionPage() {
                   </div>
                 </div>
                 <div className="text-right flex items-center justify-end gap-2">
-                  <button
-                    type="button"
-                    className="btn-secondary btn-sm"
-                    onClick={() => handleEdit(e)}
-                  >
-                    Edit
-                  </button>
                   <div className="text-sm font-bold text-amber-400 font-mono">
                     ₹{Number(e.wage_earned).toLocaleString()}
                   </div>
@@ -361,12 +343,6 @@ export default function ProductionPage() {
                     <td className="table-cell font-mono text-emerald-400 text-xs">
                       ₹{Number(e.saree_profit).toLocaleString()}
                     </td>
-                    {/* <td
-                      className="p-1.5 text-slate-500 hover:text-amber-400 hover:bg-amber-500/10 rounded-lg transition-colors"
-                      onClick={() => handleEdit(e)}
-                    >
-                      <Edit className="w-3.5 h-3.5" />{" "}
-                    </td> */}
                     <td
                       className="p-1.5 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors"
                       onClick={() => {
@@ -388,10 +364,9 @@ export default function ProductionPage() {
         isOpen={showForm}
         onClose={() => {
           setShowForm(false);
-          setEditing(null);
           reset();
         }}
-        title={editing ? "Edit Production Entry" : "Add Production Entry"}
+        title="Add Production Entry"
         size="lg"
       >
         <form

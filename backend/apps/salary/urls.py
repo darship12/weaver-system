@@ -4,4 +4,5 @@ from .views import SalaryViewSet
 
 router = DefaultRouter()
 router.register('', SalaryViewSet, basename='salary')
+
 urlpatterns = [path('', include(router.urls))]

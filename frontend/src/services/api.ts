@@ -25,15 +25,12 @@ async function refreshAccessToken() {
   return data;
 }
 
-// Request interceptor — attach token
+// ── Interceptors ──────────────────────────────────────────────
 api.interceptors.request.use((config) => {
-  if (accessToken) {
-    config.headers.Authorization = `Bearer ${accessToken}`;
-  }
+  if (accessToken) config.headers.Authorization = `Bearer ${accessToken}`;
   return config;
 });
 
-// Response interceptor — auto refresh
 api.interceptors.response.use(
   (res) => res,
   async (error: AxiosError) => {
@@ -42,9 +39,7 @@ api.interceptors.response.use(
       original._retry = true;
       try {
         if (!refreshPromise) {
-          refreshPromise = refreshAccessToken().finally(() => {
-            refreshPromise = null;
-          });
+          refreshPromise = refreshAccessToken().finally(() => { refreshPromise = null; });
         }
         const data = (await refreshPromise) as any;
         original.headers.Authorization = `Bearer ${data.access}`;
@@ -63,58 +58,76 @@ api.interceptors.response.use(
 
 // ── Auth ──────────────────────────────────────────────────────
 export const authAPI = {
-  login: (username: string, password: string) =>
-    api.post('/auth/login/', { username, password }),
-  logout: (refresh_token: string) =>
-    api.post('/auth/logout/', { refresh_token }),
-  refresh: (refresh_token: string) =>
-    api.post('/auth/token/refresh/', { refresh: refresh_token }),
-  me: () => api.get('/auth/me/'),
+  login:          (username: string, password: string) =>
+                    api.post('/auth/login/', { username, password }),
+  logout:         (refresh_token: string) =>
+                    api.post('/auth/logout/', { refresh_token }),
+  refresh:        (refresh_token: string) =>
+                    api.post('/auth/token/refresh/', { refresh: refresh_token }),
+  me:             () => api.get('/auth/me/'),
   changePassword: (data: { old_password: string; new_password: string }) =>
-    api.post('/auth/change-password/', data),
+                    api.post('/auth/change-password/', data),
 };
 
 // ── Employees ─────────────────────────────────────────────────
 export const employeeAPI = {
-  list: (params?: Record<string, any>) => api.get('/employees/', { params }),
+  list:     (params?: Record<string, any>) => api.get('/employees/', { params }),
   dropdown: () => api.get('/employees/dropdown/'),
-  get: (id: number) => api.get(`/employees/${id}/`),
-  stats: (id: number) => api.get(`/employees/${id}/stats/`),
-  create: (data: any) => api.post('/employees/', data),
-  update: (id: number, data: any) => api.patch(`/employees/${id}/`, data),
-  delete: (id: number) => api.delete(`/employees/${id}/`),
+  get:      (id: number) => api.get(`/employees/${id}/`),
+  stats:    (id: number) => api.get(`/employees/${id}/stats/`),
+  create:   (data: any)  => api.post('/employees/', data),
+  update:   (id: number, data: any) => api.patch(`/employees/${id}/`, data),
+  delete:   (id: number) => api.delete(`/employees/${id}/`),
 };
 
 // ── Attendance ────────────────────────────────────────────────
 export const attendanceAPI = {
-  list: (params?: Record<string, any>) => api.get('/attendance/', { params }),
-  bulkMark: (data: { date: string; records: any[] }) =>
-    api.post('/attendance/bulk/', data),
+  list:           (params?: Record<string, any>) => api.get('/attendance/', { params }),
+  bulkMark:       (data: { date: string; records: any[] }) =>
+                    api.post('/attendance/bulk/', data),
   monthlySummary: (year: number, month: number) =>
-    api.get('/attendance/monthly-summary/', { params: { year, month } }),
+                    api.get('/attendance/monthly-summary/', { params: { year, month } }),
 };
 
 // ── Production ────────────────────────────────────────────────
 export const productionAPI = {
-  list: (params?: Record<string, any>) => api.get('/production/', { params }),
-  create: (data: any) => api.post('/production/', data),
-  update: (id: number, data: any) => api.patch(`/production/${id}/`, data),
-  delete: (id: number) => api.delete(`/production/${id}/`),
-  summary: (period: string, employee_id?: number) =>
-    api.get('/production/summary/', { params: { period, employee_id } }),
-  defects: () => api.get('/production/defects/'),
+  list:          (params?: Record<string, any>) => api.get('/production/', { params }),
+  create:        (data: any)  => api.post('/production/', data),
+  update:        (id: number, data: any) => api.patch(`/production/${id}/`, data),
+  delete:        (id: number) => api.delete(`/production/${id}/`),
+  summary:       (period: string, employee_id?: number) =>
+                   api.get('/production/summary/', { params: { period, employee_id } }),
+  defects:       () => api.get('/production/defects/'),
   topPerformers: () => api.get('/production/top-performers/'),
-  dailyChart: (days?: number) => api.get('/production/daily-chart/', { params: { days } }),
-  designs: () => api.get('/production/designs/'),
-  pricing: () => api.get('/production/pricing/'),
+  dailyChart:    (days?: number) => api.get('/production/daily-chart/', { params: { days } }),
+  designs:       () => api.get('/production/designs/'),
+  pricing:       () => api.get('/production/pricing/'),
 };
 
 // ── Salary ────────────────────────────────────────────────────
+
 export const salaryAPI = {
-  list: (params?: Record<string, any>) => api.get('/salary/', { params }),
-  weeklySummary: () => api.get('/salary/weekly-summary/'),
-  calculate: () => api.post('/salary/calculate/'),
-  markPaid: (id: number) => api.patch(`/salary/${id}/mark-paid/`),
+  list:            (params?: Record<string, any>) => api.get('/salary/', { params }),
+  weeklySummary:   () => api.get('/salary/weekly-summary/'),
+
+  // New: week summary for any date
+  weekSummary: (date: string) =>
+    api.get('/salary/week-summary/', { params: { date } }),
+
+  calculate:       () => api.post('/salary/calculate/'),
+
+  markPaid: (id: number, payment_method = 'Cash') =>
+    api.patch(`/salary/${id}/mark-paid/`, { payment_method }),
+
+  // New: credit-card style partial payment
+  addPayment: (
+    id: number,
+    data: { amount: number; payment_method: string; notes?: string; paid_on: string }
+  ) => api.post(`/salary/${id}/add-payment/`, data),
+
+  // New: download payslip PDF (returns blob)
+  downloadPayslip: (id: number) =>
+    api.get(`/salary/${id}/download-payslip/`, { responseType: 'blob' }),
 };
 
 // ── Dashboard ─────────────────────────────────────────────────
