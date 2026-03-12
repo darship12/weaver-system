@@ -15,7 +15,8 @@ from apps.salary.models import Salary
 
 class DashboardSummaryView(APIView):
     # Cache dashboard summary briefly for performance but keep it responsive to changes.
-    @method_decorator(cache_page(30))
+    # Short cache helps keep the daily production chart up-to-date immediately.
+    @method_decorator(cache_page(2))
     def get(self, request):
         today = datetime.date.today()
         week_start = today - datetime.timedelta(days=today.weekday())
@@ -39,7 +40,7 @@ class DashboardSummaryView(APIView):
             absent=Count('id', filter=Q(status='absent')),
         )
 
-        # Top performers this week
+        # Top performers this week (top 5)
         top_performers = ProductionEntry.objects.filter(date__gte=week_start)\
             .values('employee__id', 'employee__name', 'employee__employee_id')\
             .annotate(total_sarees=Sum('quantity'), total_wage=Sum('wage_earned'))\

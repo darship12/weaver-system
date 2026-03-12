@@ -11,6 +11,7 @@ import datetime
 from .models import ProductionEntry, SareePricing, DesignType
 from .serializers import ProductionEntrySerializer, SareePricingSerializer, DesignTypeSerializer
 from config.kafka_producer import produce_event
+from apps.salary.tasks import calculate_weekly_salary_for_employee
 
 
 class ProductionEntryViewSet(viewsets.ModelViewSet):
@@ -20,8 +21,9 @@ class ProductionEntryViewSet(viewsets.ModelViewSet):
 
     queryset = ProductionEntry.objects.select_related('employee', 'design_type').all()
     serializer_class = ProductionEntrySerializer
-    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['date', 'employee', 'loom_type', 'saree_length']
+    search_fields = ['employee__name', 'employee__employee_id']
     ordering_fields = ['date', 'quantity', 'wage_earned']
     ordering = ['-date']
 
@@ -36,6 +38,18 @@ class ProductionEntryViewSet(viewsets.ModelViewSet):
             'defects': entry.defects,
             'wage_earned': str(entry.wage_earned),
         })
+        try:
+            calculate_weekly_salary_for_employee.delay(entry.employee_id)
+        except Exception:
+            calculate_weekly_salary_for_employee(entry.employee_id)
+
+    def perform_destroy(self, instance):
+        employee_id = instance.employee_id
+        super().perform_destroy(instance)
+        try:
+            calculate_weekly_salary_for_employee.delay(employee_id)
+        except Exception:
+            calculate_weekly_salary_for_employee(employee_id)
 
     @action(detail=False, methods=['get'], url_path='summary')
     def summary(self, request):

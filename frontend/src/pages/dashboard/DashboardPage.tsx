@@ -126,41 +126,43 @@ export default function DashboardPage() {
           {isLoading ? (
             <div className="skeleton h-48" />
           ) : (
-            <ResponsiveContainer width="100%" height={200}>
-              <AreaChart
-                data={data?.daily_chart || []}
-                margin={{ top: 5, right: 5, left: -20, bottom: 0 }}
-              >
-                <defs>
-                  <linearGradient id="ga" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#F59E0B" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#F59E0B" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1E2D44" />
-                <XAxis
-                  dataKey="day"
-                  tick={{ fontSize: 11, fill: "#64748B" }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <YAxis
-                  tick={{ fontSize: 11, fill: "#64748B" }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <Tooltip content={<ChartTip />} />
-                <Area
-                  type="monotone"
-                  dataKey="sarees"
-                  name="Sarees"
-                  stroke="#F59E0B"
-                  strokeWidth={2}
-                  fill="url(#ga)"
-                  dot={{ fill: "#F59E0B", r: 3, strokeWidth: 0 }}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
+            <>
+              <ResponsiveContainer width="100%" height={200}>
+                <AreaChart
+                  data={data?.daily_chart || []}
+                  margin={{ top: 5, right: 5, left: -20, bottom: 0 }}
+                >
+                  <defs>
+                    <linearGradient id="ga" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#F59E0B" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#F59E0B" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#1E2D44" />
+                  <XAxis
+                    dataKey="day"
+                    tick={{ fontSize: 11, fill: "#64748B" }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    tick={{ fontSize: 11, fill: "#64748B" }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <Tooltip content={<ChartTip />} />
+                  <Area
+                    type="monotone"
+                    dataKey="sarees"
+                    name="Sarees"
+                    stroke="#F59E0B"
+                    strokeWidth={2}
+                    fill="url(#ga)"
+                    dot={{ fill: "#F59E0B", r: 3, strokeWidth: 0 }}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </>
           )}
         </div>
         <div className="card p-5 anim-fade-up delay-4">

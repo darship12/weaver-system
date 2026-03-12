@@ -87,27 +87,55 @@ export interface DesignType {
   is_active: boolean;
 }
 
+// ── Add / replace these interfaces in src/types/index.ts ──────
+
+export interface SalaryPayment {
+  id:             number;
+  amount:         number | string;
+  payment_method: string;
+  notes:          string;
+  paid_on:        string;
+  created_at:     string;
+}
+
 export interface SalaryLine {
-  id: number;
+  id:               number;
+  date:             string | null;   // NEW field
+  saree_type:       string;
   saree_type_label: string;
-  quantity: number;
-  rate: string;
-  subtotal: string;
+  loom_type:        string;
+  saree_length:     string;
+  quantity:         number;
+  rate:             number | string;
+  subtotal:         number | string;
 }
 
 export interface Salary {
-  id: number;
-  employee: number;
-  employee_name: string;
-  employee_code: string;
-  period_type: 'weekly' | 'monthly';
-  period_start: string;
-  period_end: string;
-  total_sarees: number;
-  total_wage: string;
-  is_paid: boolean;
-  paid_date: string | null;
-  lines: SalaryLine[];
+  id:               number;
+  employee:         number;
+  employee_name:    string;
+  employee_code:    string;
+  period_start:     string;
+  period_end:       string;
+  period_type:      string;
+  total_sarees:     number;
+  total_wage:       number | string;
+
+  // ── Credit-card payment fields (NEW) ─────────────────────
+  paid_amount:      number | string;
+  remaining_amount: number | string;
+  status:           'unpaid' | 'partial' | 'paid';
+  status_display:   string;
+
+  // Legacy
+  is_paid:          boolean;
+  paid_date:        string | null;
+
+  lines:    SalaryLine[];
+  payments: SalaryPayment[];   // NEW
+
+  created_at: string;
+  updated_at: string;
 }
 
 export interface TopPerformer {
@@ -132,6 +160,7 @@ export interface DashboardSummary {
   this_week: { sarees: number; revenue: number; profit: number; };
   this_month: { sarees: number; revenue: number; profit: number; };
   top_performers: TopPerformer[];
+  weekly_production_by_employee: Omit<TopPerformer, 'total_wage' | 'total_defects'>[];
   daily_chart: DailyChartPoint[];
 }
 
